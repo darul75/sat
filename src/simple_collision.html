@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SAT.js - Simple Collision Examples</title>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.2/raphael-min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+    <script src="SAT.js"></script>
+    <script src="easel.js"></script>
+    <script src="Mystic.js"></script>
+    <script src="examples.js"></script>
+    <script>    
+
+    // Simple onCollide handler that changes colors of displayed items.
+    function displayCollision(other, response) {
+      this.displayAttrs.fill = response.aInB ? '#0F0' : '#F00';
+      other.displayAttrs.fill = response.bInA ? '#0F0' : '#F00';
+    }
+    // onTick handler that restores "non collided" color
+    function restoreNoCollisionColors() {
+      this.displayAttrs.fill = '#CCC';
+    }
+    // Default entity options that will just highlight entities when they overlap
+    var defaultEntityOptions = {
+      solid: false,
+      draggable: true,
+      onCollide: displayCollision,
+      onTick: restoreNoCollisionColors
+    };
+    </script>
+  </head>
+  <body style="margin: 50px">
+    <h1>Simple Collision Examples</h1>
+    <p>Drag the shapes around. The shapes will turn red when they are colliding. The smaller shape will turn green if it is completely inside the larger one.</p>
+    <h2>Circle-Circle collision</h2>
+    <div id="example1" style="border: 1px solid #CCC; width: 320px; height: 240px;"></div>
+    <script>
+    (function () {
+      var canvas = Raphael('example1', 320, 240);
+      var tree = this.Mystic.quadTree({x:0,y:0,width:320, height:240}, false, 7);
+      var world = new World(canvas);
+
+       for (var i = 0; i< 100; i++) {
+        var x = Math.floor(Math.random() * 320) + 1;
+        var y = Math.floor(Math.random() * 240) + 1;
+        var C1 = C(V(x, y), 10);
+        
+        var circle2 = world.addEntity(C1, defaultEntityOptions);
+
+        // quad
+        var circle1 = {width:20,height:20,x:x,y:y};
+        tree.insert(circle1);
+        
+        /*var items = tree.retrieve(circle1);
+        
+        var response = new SAT.Response();
+        var collided = SAT.testCircleCircle(C1, C2, response);
+        console.log(collided);  */
+      }
+      
+
+      var C1 = C(V(30, 40), 30);
+      var C2 = C(V(30, 30), 10);
+      var circle1 = world.addEntity(C1, defaultEntityOptions);
+      var circle2 = world.addEntity(C2, defaultEntityOptions);
+
+      // quad
+      var circle1 = {width:60,height:60,x:160,y:120};
+      tree.insert(circle1);
+      tree.insert({width:20,height:20,x:30,y:30});
+      var items = tree.retrieve(circle1);
+      
+      var response = new SAT.Response();
+      var collided = SAT.testCircleCircle(C1, C2, response);
+      console.log(collided);
+
+    }());
+    </script>
+
+    <h2>Circle-Polygon Collision</h2>
+    <div id="example2" style="border: 1px solid #CCC; width: 320px; height: 240px;"></div>
+    <script>
+    (function () {
+      var canvas = Raphael('example2', 320, 240);
+      var world = new World(canvas);
+      var poly = world.addEntity(P(V(160,120), [V(0,0), V(60, 0), V(100, 40), V(60, 80), V(0, 80)]), defaultEntityOptions);
+      var circle = world.addEntity(C(V(30,30), 20), defaultEntityOptions);
+    }());
+    </script>
+
+    <h2>Polygon-Polygon Collision</h2>
+    <div id="example3" style="border: 1px solid #CCC; width: 320px; height: 240px;"></div>
+    <script>
+    (function () {
+      var canvas = Raphael('example3', 320, 240);
+      var world = new World(canvas);
+      var poly = world.addEntity(P(V(160,120), [V(0,0), V(60, 0), V(100, 40), V(60, 80), V(0, 80)]), defaultEntityOptions);
+      var poly2 = world.addEntity(P(V(10,10), [V(0,0), V(30, 0), V(30, 30), V(0, 30)]), defaultEntityOptions);
+    }());
+    </script>
+  </body>
+</html>
